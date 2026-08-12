@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cerdas Cermat Bulan K3 Nasional 2026 - Vale IGP Pomalaa</title>
+  <link rel="stylesheet" href="Bingo.css"/>
+  <link rel="icon" type="image/png" href="https://companieslogo.com/img/orig/INCO.JK_BIG-5c4eedb1.png?t=1730292986" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <img
+      src="https://companieslogo.com/img/orig/INCO.JK_BIG-5c4eedb1.png?t=1730292986"
+      alt="Logo Vale"
+      class="site-logo" />
+    <h1 class="site-title">CAP-CIP-CUP K3 FINAL</h1>
+  </header>
+
+  <!-- Input Tim & Session -->
+  <div>
+    <input type="text" id="sessionId" placeholder="Session ID (Mandatory)" />
+    <input type="text" id="teamA" placeholder="Nama Tim A" />
+    <input type="text" id="teamB" placeholder="Nama Tim B" />
+    <input type="text" id="teamC" placeholder="Nama Tim C" />
+    <input type="text" id="teamD" placeholder="Nama Tim D" />
+    <button id="startBtn" onclick="startGame()">Start Game</button>
+    <!-- Tombol baru: FINAL -->
+    <button id="startFinalBtn" onclick="startFinal()" style="background:#e53935">Start Final</button>
+  </div>
+
+  <!-- Scoreboard -->
+  <div id="scores">
+    <h3 id="scoreA" class="score-badge" title="Klik untuk pilih pemain aktif">Tim A: 0</h3>
+    <h3 id="scoreB" class="score-badge" title="Klik untuk pilih pemain aktif">Tim B: 0</h3>
+    <h3 id="scoreC" class="score-badge" title="Klik untuk pilih pemain aktif">Tim C: 0</h3>
+    <h3 id="scoreD" class="score-badge" title="Klik untuk pilih pemain aktif">Tim D: 0</h3>
+  </div>
+
+  <!-- REGULAR: Box -->
+  <div id="questionBox" class="hidden">
+    <div id="questionText" class="question-text"></div>
+    <div id="answersArea" class="answers-area"></div>
+  </div>
+
+  <!-- TAKEOVER: Box (juga dipakai 100% saat FINAL) -->
+  <div id="takeoverBox" class="hidden">
+    <div>
+      <strong id="takeoverTitle">Take Over Round</strong> -
+      <span id="takeoverProgress">0/5</span>
+    </div>
+    <pre id="takeoverText" style="white-space:pre-wrap;margin:8px 0;"></pre>
+    <div id="toAnswersArea" class="answers-area"></div>
+
+    <!-- Tombol mode lama (tetap hidden) -->
+    <div id="legacyTOButtons">
+      <button type="button" onclick="answertakeOver('A')">Tim A benar</button>
+      <button type="button" onclick="answertakeOver('B')">Tim B benar</button>
+      <button type="button" onclick="answertakeOver('C')">Tim C benar</button>
+      <button type="button" onclick="answertakeOver('D')">Tim D benar</button>
+      <br />
+      <button type="button" class="wrongBtn" onclick="wrongtakeOver('A')">Tim A Salah</button>
+      <button type="button" class="wrongBtn" onclick="wrongtakeOver('B')">Tim B Salah</button>
+      <button type="button" class="wrongBtn" onclick="wrongtakeOver('C')">Tim C Salah</button>
+      <button type="button" class="wrongBtn" onclick="wrongtakeOver('D')">Tim D Salah</button>
+      <br />
+    </div>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup" class="hidden"></div>
+
+  <!-- BigMark (disabled by CSS) -->
+  <div id="bigMark" class="hidden"></div>
+
+  <!-- Board -->
+  <div id="gameBoard"></div>
+
+  <!-- Panel lama (disembunyikan) -->
+  <div id="hostControls" class="hidden"></div>
+
+  <footer id="footer">©Creator8-bit 2025</footer>
+
+  <!-- =========================================================
+       BANK SOAL (HTML JSON) — TETAP DI HTML
+       ========================================================= -->
+
+  <!-- REGULAR QUESTION BANK (111 soal) -->
+  <script type="application/json" id="regularBank">
+  {
+    "items": [
+      { "id": "rca-0001", "cat": "RCA", "text": "Berapakah jumlah Golden Rules PTVI<br>A. 10<br>B. 8<br>C. 7<br>D. 9", "ans": "a" },
+      { "id": "rca-0002", "cat": "RCA", "text": "Bekerja di ketinggian merupakan salah satu Golden Rules PTVI, yang merujuk pada MHS nomor<br>A. MHS 01<br>B. MHS 02<br>C. MHS 03<br>D. MHS 08", "ans": "a" },
+      { "id": "rca-0003", "cat": "RCA", "text": "MHS atau CAR 08 menjelaskan tentang…<br>A. Rotating and Moving Equipment<br>B. Slope Stability<br>C. Confined Space<br>D. Lifting and Supporting Loads", "ans": "b" },
+      { "id": "rca-0004", "cat": "RCA", "text": "Terdapat berapa jenis sistem isolasi dan penguncian pada CAR 04<br>A. 1<br>B. 2<br>C. 3<br>D. 4", "ans": "c" },
+      { "id": "rca-0005", "cat": "RCA", "text": "Apa kepanjangan dari CAR<br>A. Critical Activity Risk<br>B. Critical Activity Requirement<br>C. Critical Assessment Requirement<br>D. Critical Assessment Risk", "ans": "b" },
+      { "id": "rca-0006", "cat": "RCA", "text": "Dari CAR atau MHS prosedur yang dimiliki PTVI, berapakah prosedur yang align dengan Golden Rules<br>A. 9 CAR<br>B. 8 CAR<br>C. 7 CAR<br>D. 6 CAR", "ans": "c" },
+      { "id": "rca-0007", "cat": "RCA", "text": "Dalam hal apa sistem penguncian kompleks dilakukan<br>A. Sumber energi lebih dari 2 dan wajib menggunakan permit isolasi<br>B. Memiliki 1 titik sumber energi<br>C. Penguncian berbentuk valve<br>D. Pekerja yang bekerja lebih dari 1 orang", "ans": "a" },
+      { "id": "rca-0008", "cat": "RCA", "text": "Dalam pekerjaan ruang terbatas, harus dilakukan pemeriksaan fobia<br>A. Ornithophobia<br>B. Claustrofobia<br>C. Atychiphobia<br>D. Anthropophobia", "ans": "b" },
+      { "id": "rca-0009", "cat": "RCA", "text": "Hierarki pengendalian bahaya yang digunakan oleh PTVI adalah<br>A. Engineering, Administrative, Work Method dan PPE<br>B. Eliminasi, Substitusi, Engineering Control, Administrative Control dan PPE<br>C. Eliminasi, Substitusi, Engineering Control, Sign & Warning, Administrative Control dan PPE<br>D. Engineering, Administrative, Work Method, Sign & Warning dan PPE", "ans": "c" },
+      { "id": "rca-0010", "cat": "RCA", "text": "Point penting dari Golden Rules nomor 9 adalah<br>A. Pekerja harus fit dan kompeten<br>B. Pekerja harus tahu risiko dan memenuhi semua pengendaliannya<br>C. Dilarang berada di bawah benda yang sedang diangkat alat angkat<br>D. Pekerja harus mengaitkan lanyard ke anchor point", "ans": "b" },
+      { "id": "rca-0011", "cat": "RCA", "text": "Sarung tangan yang diizinkan untuk pekerja listrik adalah<br>A. Cotton Gloves<br>B. Welding Gloves<br>C. Dexterity<br>D. Lead Lined", "ans": "c" },
+      { "id": "rca-0012", "cat": "RCA", "text": "Kunci LOTO berwarna kuning hanya boleh dipasang bersama label…<br>A. Label Darurat FES<br>B. Label Peralatan Rusak<br>C. Label Permit<br>D. Label Bahaya Pribadi", "ans": "c" },
+      { "id": "rca-0013", "cat": "RCA", "text": "Prosedur kerja standar yang mencakup ketentuan safety pada permesinan/peralatan bergerak dan berputar adalah<br>A. Ketentuan operasional dan ketentuan produksi<br>B. Ketentuan undang-undang<br>C. Ketentuan safety dan ketentuan produksi<br>D. Ketentuan safety, operasional dan undang-undang", "ans": "d" },
+      { "id": "rca-0014", "cat": "RCA", "text": "Sistem yang menggunakan full body harness untuk meminimalkan cedera saat terjatuh disebut<br>A. Pencegah Jatuh (Fall Prevention)<br>B. Penahan Jatuh (Fall Restraint)<br>C. Proteksi Jatuh (Fall Protection)<br>D. Penghenti Jatuh (Fall Arrester)", "ans": "c" },
+      { "id": "rca-0015", "cat": "RCA", "text": "Emergency stop pada permesinan/peralatan bergerak digunakan untuk<br>A. Sebagai alat isolasi<br>B. Menghentikan mesin dalam kondisi darurat<br>C. Menghentikan mesin secara normal<br>D. Pengaman alternatif", "ans": "b" },
+      { "id": "rca-0016", "cat": "RCA", "text": "Titik aman/kuat untuk menyangkutkan lanyard disebut<br>A. Titik jangkar (Anchor Point)<br>B. Tali lanyard<br>C. Full Body Harness<br>D. Handrail", "ans": "a" },
+      { "id": "rca-0017", "cat": "RCA", "text": "Ada berapa total Golden Rules PTVI<br>A. 12<br>B. 10<br>C. 13<br>D. 19", "ans": "b" },
+      { "id": "rca-0018", "cat": "RCA", "text": "Jika pekerja menyatakan sudah mengonsumsi obat di Fit to Work Declaration, bolehkah bekerja?<br>A. Boleh karena kerja prioritas<br>B. Boleh dengan catatan dokter<br>C. Tidak boleh, harus istirahat & FIT<br>D. Tidak boleh karena memperparah", "ans": "c" },
+      { "id": "rca-0019", "cat": "RCA", "text": "Berapa total CAR PTVI<br>A. 19<br>B. 14<br>C. 20<br>D. 11", "ans": "a" },
+      { "id": "rca-0020", "cat": "RCA", "text": "CAR No.8 berkaitan dengan<br>A. Working at Height<br>B. Boilers<br>C. Electrical<br>D. Slope and Stability", "ans": "d" },
+      { "id": "rca-0021", "cat": "RCA", "text": "Standar bekerja di ketinggian PTVI adalah<br>A. 1,5 m<br>B. 1,7 m<br>C. 1,8 m<br>D. 1,1 m", "ans": "c" },
+      { "id": "rca-0022", "cat": "RCA", "text": "Masa berlaku SWP di PTVI<br>A. 1x24 jam<br>B. 30 hari<br>C. 6x24 jam<br>D. Berdasarkan klasifikasi RA", "ans": "a" },
+      { "id": "rca-0023", "cat": "RCA", "text": "Apa yang dimaksud dengan LOTO?<br>A. Prosedur untuk memutus energi sebelum melakukan perawatan<br>B. Prosedur menghidupkan mesin setelah perawatan<br>C. Prosedur memeriksa mesin<br>D. Prosedur menghukum pelanggar", "ans": "a" },
+      { "id": "rca-0024", "cat": "RCA", "text": "Apa yang harus dilakukan jika terjadi kebakaran di tempat kerja?<br>A. Melaporkan ke manajemen dan memanggil tim pemadam kebakaran<br>B. Melakukan evakuasi dan memanggil tim pemadam kebakaran<br>C. Menggunakan alat pemadam kebakaran<br>D. Semua jawaban di atas benar", "ans": "d" },
+      { "id": "rca-0025", "cat": "RCA", "text": "Apa kepanjangan dari FAP?<br>A. First Aid Post<br>B. First Aid Places<br>C. First Aid Places<br>D. First Aid Position", "ans": "a" },
+      { "id": "rca-0026", "cat": "RCA", "text": "Jika pekerja cedera berat & tidak sadar<br>A. Laporkan & panggil medis<br>B. Lakukan P3K & panggil medis<br>C. Bawa ke RS<br>D. Tunggu medis datang", "ans": "b" },
+      { "id": "rca-0027", "cat": "RCA", "text": "RAC/CAR yang TIDAK ada di PTVI<br>A. Bekerja di ketinggian<br>B. Kendaraan ringan<br>C. Ruang terbatas<br>D. Perencanaan", "ans": "d" },
+      { "id": "rca-0028", "cat": "RCA", "text": "Pelindung kabin alat berat disebut<br>A. FOPS & ROPS<br>B. FMS<br>C. LOTO<br>D. APAR", "ans": "a" },
+      { "id": "rca-0029", "cat": "RCA", "text": "Golden Rules nomor berapa: Jangan bekerja sendirian di ruang terbatas tanpa izin & APD?<br>A. 1<br>B. 4<br>C. 6<br>D. 8", "ans": "c" },
+      { "id": "rca-0030", "cat": "RCA", "text": "Masuk area produksi/tailing/gardu listrik tanpa izin melanggar Golden Rules nomor<br>A. 10<br>B. 9<br>C. 7<br>D. 5", "ans": "c" },
+      { "id": "rca-0031", "cat": "RCA", "text": "CAR/RAC No.3 adalah<br>A. Bekerja di ketinggian<br>B. Bekerja dengan alat berat<br>C. Slope Stability<br>D. Pengangkatan beban", "ans": "b" },
+      { "id": "rca-0032", "cat": "RCA", "text": "Izin kerja untuk pengelasan<br>A. Safe Work Permit<br>B. Hot Work Permit<br>C. Confined Space Work Permit<br>D. Work at Height Permit", "ans": "b" },
+      { "id": "rca-0033", "cat": "RCA", "text": "MHS No.10 terkait<br>A. Penerbangan<br>B. Listrik<br>C. Bahan kimia berbahaya<br>D. Bejana bertekanan", "ans": "b" },
+      { "id": "rca-0034", "cat": "RCA", "text": "Larangan mengoperasikan alat berat tanpa pelatihan/kewenangan/alat keselamatan adalah Golden Rules nomor<br>A. 1<br>B. 3<br>C. 4<br>D. 5", "ans": "b" },
+      { "id": "rca-0035", "cat": "RCA", "text": "Kondisi jalan tambang dan pengaturan lalu lintas adalah MHS nomor<br>A. 10<br>B. 9<br>C. 15<br>D. 19", "ans": "c" },
+
+      { "id": "esdm-0001", "cat": "ESDM", "text": "Berdasarkan elemen III pada SMKP, yang tidak termasuk kedalam penentuan kriteria kelas KTT/PTL ialah<br>A. Luas wilayah izin<br>B. Jumlah produksi<br>C. Metode penambangan<br>D. Jumlah pekerja", "ans": "a" },
+      { "id": "esdm-0002", "cat": "ESDM", "text": "Ada berapa elemen pembahasan di dalam SMKP<br>A. IV<br>B. V<br>C. VI<br>D. VII", "ans": "d" },
+      { "id": "esdm-0003", "cat": "ESDM", "text": "Peningkatan kinerja dapat dilaksanakan dalam hal berikut, kecuali<br>A. Adanya masukan dari pekerja<br>B. Adanya audit internal SMKP Minerba<br>C. Adanya perkembangan teknologi<br>D. Adanya tuntutan dari pemangku kepentingan", "ans": "b" },
+      { "id": "esdm-0004", "cat": "ESDM", "text": "Tinjauan manajemen keselamatan pertambangan dilakukan oleh<br>A. Kepala bagian keselamatan pertambangan<br>B. Ketua serikat pekerja tambang<br>C. Pimpinan tertinggi perusahaan<br>D. KTT/Penanggung Jawab Teknik dan Lingkungan", "ans": "c" },
+      { "id": "esdm-0005", "cat": "ESDM", "text": "Tinggi maksimum tumpukan handak peka detonator (bangunan) adalah<br>A. 1,2 m<br>B. 1,4 m<br>C. 1,6 m<br>D. 1,8 m", "ans": "d" },
+      { "id": "esdm-0006", "cat": "ESDM", "text": "Gambaran tingkat risiko pemaparan bahaya lingkungan kerja diperoleh melalui tahapan<br>A. Antisipasi<br>B. Pengendalian<br>C. Evaluasi<br>D. Pengenalan", "ans": "c" },
+      { "id": "esdm-0007", "cat": "ESDM", "text": "Menurut Kepmen 1827 K/30/MEM/2018, cidera tambang dikategorikan menjadi<br>A. Ringan, sedang, berat<br>B. Ringan, berat, fatality<br>C. Ringan, TMBS (tidak mampu bekerja sementara), berat<br>D. Ringan, sedang, kematian", "ans": "b" },
+      { "id": "esdm-0008", "cat": "ESDM", "text": "Manakah yang termasuk kriteria kecelakaan tambang<br>A. Terjadi di luar jam kerja dan wilayah tambang<br>B. Terjadi karena penyakit bawaan pekerja<br>C. Terjadi di wilayah usaha pertambangan<br>D. Terjadi dalam perjalanan pribadi ke rumah", "ans": "c" },
+      { "id": "esdm-0009", "cat": "ESDM", "text": "Kepmen ESDM No. 1827 mengatur tentang<br>A. K3 Pertambangan<br>B. K3 serta Lingkungan Pertambangan<br>C. Lingkungan hidup pertambangan<br>D. Produksi & operasional tambang", "ans": "b" },
+      { "id": "esdm-0010", "cat": "ESDM", "text": "Yang bukan termasuk isi laporan investigasi kecelakaan tambang adalah<br>A. Fakta dan data investigasi<br>B. Analisis penyebab kecelakaan<br>C. Rekomendasi perbaikan<br>D. Penilaian kinerja karyawan", "ans": "d" },
+      { "id": "esdm-0011", "cat": "ESDM", "text": "Prosedur klakson unit — yang TIDAK termasuk<br>A. Sebelum menyalakan mesin: 1x<br>B. Sebelum maju: 2x<br>C. Sebelum mundur: 3x<br>D. Saat berhenti: 4x", "ans": "d" },
+      { "id": "esdm-0012", "cat": "ESDM", "text": "Keselamatan kerja di Indonesia diatur dalam<br>A. UU No. 13/2003<br>B. UU No. 1/1970<br>C. UU No. 32/2009<br>D. UU No. 11/2020", "ans": "b" },
+      { "id": "esdm-0013", "cat": "ESDM", "text": "Setiap tamu/pekerja baru yang masuk area tambang wajib melakukan<br>A. Safety Induction<br>B. Safety Committee<br>C. Safety Driving<br>D. Safety Talk", "ans": "a" },
+      { "id": "esdm-0014", "cat": "ESDM", "text": "Masa berlaku IUP produksi adalah<br>A. Seumur hidup<br>B. 5 tahun<br>C. 3 tahun<br>D. Sesuai rencana pertambangan", "ans": "d" },
+      { "id": "esdm-0015", "cat": "ESDM", "text": "Tujuan safety audit dalam keselamatan kerja<br>A. Mengidentifikasi bahaya dan menilai risiko<br>B. Menjaga kesehatan pekerja<br>C. Mengendalikan bahaya dan risiko<br>D. Memeriksa kesehatan pekerja", "ans": "a" },
+      { "id": "esdm-0016", "cat": "ESDM", "text": "SPIP adalah singkatan dari<br>A. Sarana, Prasarana, Instalasi, dan Peralatan Pertambangan<br>B. Sistem Pemeliharaan Instalasi Pertambangan<br>C. Standar Pengelolaan Infrastruktur Pertambangan<br>D. Sistem Pengawasan Instalasi Produksi", "ans": "a" },
+      { "id": "esdm-0017", "cat": "ESDM", "text": "UU dasar regulasi pertambangan minerba adalah<br>A. UU No. 22/2001<br>B. UU No. 3/2020<br>C. UU No. 10/2004<br>D. UU No. 32/2009", "ans": "b" },
+      { "id": "esdm-0018", "cat": "ESDM", "text": "Kategori ketidaksesuaian SMKP berikut, kecuali<br>A. Minor<br>B. Mayor<br>C. Kritikal<br>D. Ringan", "ans": "d" },
+      { "id": "esdm-0019", "cat": "ESDM", "text": "SMKP mewajibkan perusahaan melakukan<br>A. Pengurangan pekerja<br>B. Identifikasi bahaya & pengendalian risiko<br>C. Penambahan jam kerja<br>D. Penghapusan SOP", "ans": "b" },
+      { "id": "esdm-0020", "cat": "ESDM", "text": "Elemen ke‑VI dalam SMKP adalah<br>A. Kebijakan<br>B. Organisasi & Personel<br>C. Dokumentasi<br>D. Tinjauan Manajemen & Peningkatan Kinerja", "ans": "c" },
+      { "id": "esdm-0021", "cat": "ESDM", "text": "Pemantauan kualitas udara tambang wajib dilakukan untuk parameter berikut, kecuali<br>A. Konsentrasi gas metana (CH4)<br>B. Debu partikulat (PM10 & PM2.5)<br>C. Kadar sulfur dioksida (SO2)<br>D. Konsentrasi ion radon (Rn)", "ans": "d" },
+
+      { "id": "env-0001", "cat": "ENV", "text": "Berdasarkan ketentuan PTVI, warna pipa distribusi solar/bensin dari tangki penyimpanan harus berwarna<br>A. Hitam<br>B. Putih<br>C. Cokelat<br>D. Kuning", "ans": "c" },
+      { "id": "env-0002", "cat": "ENV", "text": "Pada Aktivitas 5R, tahapan nomor 3 adalah<br>A. Resik<br>B. Rapi<br>C. Ringkas<br>D. Rajin", "ans": "a" },
+      { "id": "env-0003", "cat": "ENV", "text": "Merujuk pada Pertek PTVI Site Pomalaa, batas baku mutu parameter TSS adalah<br>A. 50 mg/L<br>B. 100 mg/L<br>C. 150 mg/L<br>D. 200 mg/L", "ans": "b" },
+      { "id": "env-0004", "cat": "ENV", "text": "Parameter wajib kualitas air higiene & sanitasi (Permenkes No. 2/2023), kecuali<br>A. Cr6+<br>B. Fe<br>C. Mn<br>D. Cd", "ans": "d" },
+      { "id": "env-0005", "cat": "ENV", "text": "Peraturan yang mengatur simbol & label Limbah B3 adalah<br>A. PermenLH No.14/2013<br>B. PermenLH No.09/2011<br>C. PermenLH No.03/2010<br>D. PermenLH No.05/2012", "ans": "a" },
+      { "id": "env-0006", "cat": "ENV", "text": "PTVI menggunakan prinsip 3R dalam pengelolaan sampah. 3R adalah<br>A. Reduce-Revise-Reclamation<br>B. Recycle-Review-Registrasi<br>C. Reduce-Reuse-Recycle<br>D. Registrasi-Reformasi-Revisi", "ans": "c" },
+      { "id": "env-0007", "cat": "ENV", "text": "Berikut merupakan sifat limbah B3, kecuali<br>A. Mudah meledak<br>B. Mudah terbakar<br>C. Mudah larut<br>D. Reaktif", "ans": "c" },
+      { "id": "env-0008", "cat": "ENV", "text": "Yang merupakan limbah Non-B3 adalah<br>A. Oli bekas<br>B. Aki/baterai bekas<br>C. Filter oli<br>D. Slag nikel", "ans": "d" },
+      { "id": "env-0009", "cat": "ENV", "text": "Berikut merupakan bentuk produk hydrocarbon, kecuali<br>A. Oli<br>B. Batu bara<br>C. LPG<br>D. Kaca", "ans": "d" },
+      { "id": "env-0010", "cat": "ENV", "text": "Limbah padat yang dapat diurai (organik) adalah<br>A. Limbah anorganik<br>B. Limbah B3<br>C. Limbah organik<br>D. Limbah klinis", "ans": "c" },
+      { "id": "env-0011", "cat": "ENV", "text": "Proses pemilahan limbah berdasarkan jenis untuk menjaga nilai ekonomi & menghindari kontaminasi disebut<br>A. Avoidance<br>B. Pemetaan sampah<br>C. Recycle<br>D. Segregasi", "ans": "d" },
+      { "id": "env-0012", "cat": "ENV", "text": "B3 dengan karakteristik korosif, kecuali<br>A. Laju korosi baja > 6,35 mm/tahun pada 55°C<br>B. Menyebabkan iritasi kulit<br>C. Mengandung alkohol < 24% volume<br>D. pH di bawah 2 atau di atas 12,5", "ans": "c" },
+      { "id": "env-0013", "cat": "ENV", "text": "Menurut sistem NFPA, warna untuk bahaya khusus adalah<br>A. Merah<br>B. Biru<br>C. Putih<br>D. Kuning", "ans": "c" },
+      { "id": "env-0014", "cat": "ENV", "text": "Berikut aturan pengemasan LB3, kecuali<br>A. Penutup kuat mencegah tumpahan<br>B. Kondisi baik, tidak bocor<br>C. Digabungkan dengan LB3 yang saling bereaksi<br>D. Bahan sesuai karakteristik LB3", "ans": "c" },
+      { "id": "env-0015", "cat": "ENV", "text": "Strategi paling efektif mengurangi dampak pertambangan terbuka adalah<br>A. Tingkatkan produksi<br>B. Teknologi limbah lebih baik<br>C. Kurangi penggunaan air<br>D. Reklamasi pasca tambang", "ans": "d" },
+      { "id": "env-0016", "cat": "ENV", "text": "Cara efektif mengelola air asam tambang sulfida adalah<br>A. Buang ke sungai langsung<br>B. Olah kimia & netralkan pH sebelum dilepas<br>C. Gunakan bakteri penetral<br>D. Encerkan dengan air bersih", "ans": "b" },
+      { "id": "env-0017", "cat": "ENV", "text": "Jika reklamasi pasca tambang tidak dilakukan, maka<br>A. Lahan pulih alami<br>B. Dampak sosial meningkat<br>C. Erosi & pencemaran air meningkat<br>D. Biaya operasi turun", "ans": "c" },
+      { "id": "env-0018", "cat": "ENV", "text": "Jika terjadi kebocoran tailing, tindakan yang benar adalah<br>A. Hentikan operasi & laporkan ke otoritas<br>B. Encerkan dengan air<br>C. Biarkan menyebar alami<br>D. Netralisasi kimia langsung", "ans": "a" },
+      { "id": "env-0019", "cat": "ENV", "text": "Dalam konteks UU 3/2020, kewajiban pemegang IUP adalah<br>A. Melakukan reklamasi mandiri<br>B. Membayar royalti<br>C. Menyusun rencana pengelolaan lingkungan<br>D. Libatkan masyarakat lokal", "ans": "c" },
+      { "id": "env-0020", "cat": "ENV", "text": "Tujuan utama regulasi pertambangan Indonesia adalah<br>A. Meningkatkan produksi<br>B. Meningkatkan pendapatan negara<br>C. Optimalkan SDA untuk kesejahteraan masyarakat<br>D. Kurangi impor mineral", "ans": "c" },
+      { "id": "env-0021", "cat": "ENV", "text": "Limbah oli/absorben/baterai bekas masuk ke tempat sampah berwarna<br>A. Hijau<br>B. Kuning<br>C. Biru<br>D. Hitam", "ans": "d" },
+      { "id": "env-0022", "cat": "ENV", "text": "Peraturan pemerintah tentang pengelolaan limbah B3 adalah<br>A. PP 22 Tahun 2021<br>B. PP 32 Tahun 2009<br>C. PP 18 Tahun 2000<br>D. PP 23 Tahun 1997", "ans": "a" },
+      { "id": "env-0023", "cat": "ENV", "text": "Simbol tengkorak pada limbah B3 berarti<br>A. Mudah terbakar<br>B. Beracun<br>C. Korosif<br>D. Radioaktif", "ans": "b" },
+      { "id": "env-0024", "cat": "ENV", "text": "Limbah B3 yang mudah terbakar disebut<br>A. Korosif<br>B. Reaktif<br>C. Infeksius<br>D. Flammable", "ans": "d" },
+      { "id": "env-0025", "cat": "ENV", "text": "Yang bukan karakteristik limbah B3 adalah<br>A. Mudah meledak<br>B. Beracun<br>C. Radioaktif<br>D. Mudah terurai alami", "ans": "d" },
+      { "id": "env-0026", "cat": "ENV", "text": "Simbol segitiga tanda seru pada kemasan B3 menunjukkan<br>A. Mudah terbakar<br>B. Beracun<br>C. Korosif<br>D. Irritant (iritasi)", "ans": "d" },
+
+      { "id": "ohih-0001", "cat": "OHIH", "text": "Apa tujuan utama pelaksanaan Ready/Fit to Work Self-Assessment sebelum mulai bekerja<br>A. Memenuhi administrasi Perusahaan<br>B. Menentukan jadwal kerja karyawan<br>C. Menilai kesiapan kesehatan pekerja sebelum bekerja<br>D. Menggantikan pemeriksaan MCU tahunan", "ans": "c" },
+      { "id": "ohih-0002", "cat": "OHIH", "text": "Ambang batas kebisingan (NAB) untuk paparan 8 jam per hari adalah<br>A. 75 dBA<br>B. 80 dBA<br>C. 85 dBA<br>D. 90 dBA", "ans": "c" },
+      { "id": "ohih-0003", "cat": "OHIH", "text": "Jika intensitas kebisingan melebihi NAB, pengendalian PALING tepat adalah<br>A. Mengabaikan karena sudah terbiasa<br>B. Mengurangi jam kerja dan menggunakan APD pendengaran<br>C. Mempercepat pekerjaan agar cepat selesai<br>D. Mengganti pekerja setiap jam tanpa APD", "ans": "b" },
+      { "id": "ohih-0004", "cat": "OHIH", "text": "Pencahayaan kerja TIDAK memenuhi standar apabila<br>A. Intensitas cahaya sesuai jenis pekerjaan<br>B. Tidak menimbulkan silau dan bayangan<br>C. Intensitas Lux/Lumens berada di bawah standar<br>D. Lampu menggunakan LED", "ans": "c" },
+      { "id": "ohih-0005", "cat": "OHIH", "text": "Menurut WHO, debu didefinisikan sebagai<br>A. Gas beracun pembakaran<br>B. Partikel cair udara mikro<br>C. Partikel padat ±1–100 mikron di udara<br>D. Uap kimia hasil proses industri", "ans": "c" },
+      { "id": "ohih-0006", "cat": "OHIH", "text": "Pengendalian paparan debu paling tepat sesuai hirarki adalah<br>A. Pakai masker saja tanpa tindakan lain<br>B. Eliminasi/substitusi + rekayasa (ventilasi/water spray)<br>C. Mengurangi jam istirahat<br>D. Biarkan selama tanpa keluhan", "ans": "b" },
+      { "id": "ohih-0007", "cat": "OHIH", "text": "Debu respirable adalah debu dengan ukuran<br>A. < 1 mikron<br>B. ≤ 2,5 mikron (PM2.5)<br>C. ≤ 10 mikron (PM10)<br>D. 10–100 mikron", "ans": "b" },
+      { "id": "ohih-0008", "cat": "OHIH", "text": "Berikut termasuk bahaya fisika, kecuali<br>A. Kebisingan<br>B. Getaran<br>C. Pencahayaan<br>D. Manual handling", "ans": "d" },
+      { "id": "ohih-0009", "cat": "OHIH", "text": "Berikut termasuk bahaya ergonomi<br>A. Posisi awkward<br>B. Shift kerja<br>C. Beban kerja mental<br>D. Iklim panas", "ans": "a" },
+      { "id": "ohih-0010", "cat": "OHIH", "text": "APD tambahan untuk gigitan ular adalah<br>A. Sepatu boat<br>B. Serum ular<br>C. Snake gitter<br>D. Tongkat", "ans": "c" },
+      { "id": "ohih-0011", "cat": "OHIH", "text": "Low Back Pain (LBP) umumnya dirasakan pada<br>A. Pergelangan tangan<br>B. Punggung bawah<br>C. Leher<br>D. Lutut", "ans": "b" },
+      { "id": "ohih-0012", "cat": "OHIH", "text": "Alat untuk mengukur pencahayaan adalah<br>A. Sound level meter<br>B. Vibration meter<br>C. Thermometer<br>D. Lux Meter", "ans": "d" },
+      { "id": "ohih-0013", "cat": "OHIH", "text": "Orang awam yang kompeten memberikan P3K disebut<br>A. Dokter perusahaan<br>B. First aider<br>C. Paramedis<br>D. Perawat", "ans": "b" },
+      { "id": "ohih-0014", "cat": "OHIH", "text": "CPR dilakukan pada korban dengan kondisi<br>A. Sadar & dapat bicara<br>B. Pingsan tapi bernapas normal<br>C. Tidak sadar & tidak bernapas<br>D. Luka ringan", "ans": "c" },
+      { "id": "ohih-0015", "cat": "OHIH", "text": "Rasio kompresi dada : napas buatan pada CPR dewasa adalah<br>A. 10:2<br>B. 15:2<br>C. 20:2<br>D. 30:2", "ans": "d" },
+      { "id": "ohih-0016", "cat": "OHIH", "text": "Fungsi utama AED adalah<br>A. Membantu napas korban<br>B. Menghentikan perdarahan<br>C. Memberikan kejut listrik menormalkan irama jantung<br>D. Mengurangi nyeri dada", "ans": "c" },
+      { "id": "ohih-0017", "cat": "OHIH", "text": "Tujuan HIRA dalam OHIH pertambangan adalah<br>A. Mengidentifikasi bahaya & menilai risiko<br>B. Mengendalikan risiko<br>C. Melaporkan kecelakaan<br>D. Pemeriksaan kesehatan berkala", "ans": "a" },
+      { "id": "ohih-0018", "cat": "OHIH", "text": "PPE (Personal Protective Equipment) adalah<br>A. Alat pelindungi diri<br>B. Alat kerja<br>C. Alat komunikasi<br>D. Alat transportasi", "ans": "a" },
+      { "id": "ohih-0019", "cat": "OHIH", "text": "Tujuan ventilasi tambang adalah<br>A. Mengontrol suhu tambang<br>B. Mengontrol kelembaban<br>C. Mengontrol kualitas udara<br>D. Mengontrol kebisingan", "ans": "c" },
+      { "id": "ohih-0020", "cat": "OHIH", "text": "Dust Control bertujuan untuk<br>A. Mengontrol kebisingan<br>B. Mengontrol debu<br>C. Mengontrol suhu<br>D. Mengontrol kelembaban", "ans": "b" },
+      { "id": "ohih-0021", "cat": "OHIH", "text": "Jika pekerja terpapar debu silika, tindakan benar adalah<br>A. Lapor manajemen<br>B. Pemeriksaan kesehatan<br>C. Gunakan PPE & kontrol debu<br>D. Semua jawaban benar", "ans": "d" },
+      { "id": "ohih-0022", "cat": "OHIH", "text": "Tujuan pelatihan K3 adalah<br>A. Tingkatkan kesadaran K3<br>B. Tingkatkan kemampuan K3<br>C. Kurangi kecelakaan kerja<br>D. Semua jawaban benar", "ans": "d" },
+      { "id": "ohih-0023", "cat": "OHIH", "text": "Confined Space adalah<br>A. Ruang luas & terbuka<br>B. Ruang sempit & tertutup<br>C. Ruang berisiko tinggi<br>D. Ruang yang dibatasi garis kuning", "ans": "b" },
+      { "id": "ohih-0024", "cat": "OHIH", "text": "OHIH singkatan dari<br>A. Occupational Hazard & Industrial Health<br>B. Occupational Health & Industrial Hygiene<br>C. Operational Health & Industrial Hazard<br>D. Occupational Human & Industrial Health", "ans": "b" },
+      { "id": "ohih-0025", "cat": "OHIH", "text": "Nilai NAB digunakan untuk<br>A. Menentukan jam kerja<br>B. Mengukur risiko kecelakaan<br>C. Menentukan batas aman paparan bahaya<br>D. Menilai performa pekerja", "ans": "c" },
+      { "id": "ohih-0026", "cat": "OHIH", "text": "Penyakit akibat kerja paling terkait pajanan silika kristalin adalah<br>A. Asbestosis<br>B. Pneumokoniosis<br>C. Silikosis<br>D. Bronkitis akut", "ans": "b" },
+      { "id": "ohih-0027", "cat": "OHIH", "text": "Tujuan dosimeter kebisingan adalah<br>A. Mengukur kebisingan sesaat<br>B. Mengukur kebisingan lingkungan umum<br>C. Mengukur pajanan kebisingan personal selama kerja<br>D. Kalibrasi sound level meter", "ans": "c" },
+      { "id": "ohih-0028", "cat": "OHIH", "text": "Gangguan kesehatan akibat heat stress paling berbahaya adalah<br>A. Heat cramp<br>B. Heat exhaustion<br>C. Heat rash<br>D. Heat stroke", "ans": "d" },
+      { "id": "ohih-0029", "cat": "OHIH", "text": "Indeks paling tepat untuk evaluasi pajanan panas kerja adalah<br>A. Humidity Index<br>B. WBGT (Wet Bulb Globe Temperature)<br>C. Heat Index<br>D. Thermal Comfort Index", "ans": "b" }
+    ]
+  }
+  </script>
+
+  <!-- FINAL QUESTION BANK (25 soal) -->
+  <script type="application/json" id="finalBank">
+  {
+    "items": [
+      { "id": "frca-0001", "cat": "RCA", "text": "Berapa prosedur yang terdapat dalam CAR / MHS PTVI<br>A. 19 prosedur<br>B. 10 prosedur<br>C. 18 prosedur<br>D. 15 prosedur", "ans": "a" },
+      { "id": "frca-0002", "cat": "RCA", "text": "Ban dan velg dijelaskan pada prosedur CAR no …<br>A. CAR 15<br>B. CAR 16<br>C. CAR 17<br>D. CAR 18", "ans": "d" },
+      { "id": "frca-0003", "cat": "RCA", "text": "Jangan melakukan pemeliharaan atau perbaikan tanpa memastikan semua sumber energi telah diputus dan dinyatakan Zero Energy adalah Golden Rules nomor<br>A. 01<br>B. 10<br>C. 04<br>D. 06", "ans": "c" },
+      { "id": "frca-0004", "cat": "RCA", "text": "Jika seseorang terjatuh dan tergantung pada full body harness sehingga sirkulasi darah terhambat, kondisi ini disebut<br>A. Hanging situation<br>B. Suspension strap<br>C. Suspension trauma<br>D. Phobia ketinggian", "ans": "c" },
+
+      { "id": "fesdm-0001", "cat": "ESDM", "text": "Dibawah ini yang tidak termasuk peraturan terkait penerapan SMKP adalah<br>A. Permen ESDM No.26 tahun 2018<br>B. Kepmen ESDM No.1827.K/30/MEM/2018<br>C. Permen ESDM No.1807.K/30/MEM/2018<br>D. Kepdirjen Minerba No.185.K/37.04/DJB/2019", "ans": "c" },
+      { "id": "fesdm-0002", "cat": "ESDM", "text": "Elemen VI SMKP — yang TIDAK termasuk sub-elemen dokumentasi adalah<br>A. Penyusunan manual SMKP<br>B. Pengendalian rekaman<br>C. Penyusunan dokumen & rekaman<br>D. Penetapan jenis dokumen & rekaman", "ans": "c" },
+      { "id": "fesdm-0003", "cat": "ESDM", "text": "Contoh bahan mudah terbakar kelas A adalah<br>A. Minyak & bensin<br>B. Kayu & plastik<br>C. Gas LPG<br>D. Magnesium", "ans": "b" },
+      { "id": "fesdm-0004", "cat": "ESDM", "text": "Pencemaran air tambang dapat disebabkan oleh<br>A. Debu<br>B. Air asam tambang<br>C. Suhu<br>D. Kebisingan", "ans": "b" },
+      { "id": "fesdm-0005", "cat": "ESDM", "text": "Sistem Manajemen Lingkungan diatur dalam standar ISO<br>A. ISO 9001<br>B. ISO 37001<br>C. ISO 45001<br>D. ISO 14001", "ans": "d" },
+      { "id": "fesdm-0006", "cat": "ESDM", "text": "Berapa lama izin RKAB pertambangan berlaku?<br>A. 5 tahun<br>B. 3 tahun<br>C. 8 tahun<br>D. 1 tahun", "ans": "b" },
+      { "id": "fesdm-0007", "cat": "ESDM", "text": "Apa fungsi dari IUP?<br>A. Izin melakukan eksplorasi tambang<br>B. Izin melakukan produksi tambang<br>C. Izin melakukan pengolahan mineral<br>D. Izin melakukan usaha tambang", "ans": "d" },
+      { "id": "fesdm-0008", "cat": "ESDM", "text": "Apa yang dimaksud dengan Safety Culture?<br>A. Budaya keselamatan yang baik<br>B. Budaya kerja yang aman<br>C. Budaya perusahaan yang mengutamakan keselamatan<br>D. Budaya produksi tambang", "ans": "c" },
+      { "id": "fesdm-0009", "cat": "ESDM", "text": "Permen ESDM No.7 Tahun 2020 membahas tentang<br>A. Wilayah, perizinan & laporan usaha minerba<br>B. Kaidah pertambangan yang baik<br>C. Bahan peledak & tangki BBM<br>D. Gudang handak", "ans": "a" },
+      { "id": "fesdm-0010", "cat": "ESDM", "text": "Lampiran I Kepmen 1827 — berapa jumlah kelas KTT ...<br>A. 6<br>B. 5<br>C. 4<br>D. 3", "ans": "c" },
+      { "id": "fesdm-0011", "cat": "ESDM", "text": "Peraturan yang tidak lagi digunakan dalam implementasi SMKP adalah<br>A. Kepmen ESDM 555.K/1995<br>B. Kepmen 1827.K/2018<br>C. Kepmen 1806.K/2018<br>D. Kepdirjen 185/2019", "ans": "a" },
+      { "id": "fesdm-0012", "cat": "ESDM", "text": "Permen ESDM 38/2014 mewajibkan audit internal minimal<br>A. Semesterly<br>B. Quarterly<br>C. Anually<br>D. Tidak perlu audit", "ans": "c" },
+      { "id": "fesdm-0013", "cat": "ESDM", "text": "Pedoman kaidah teknik pertambangan (termasuk tambang terbuka) diatur dalam<br>A. Permen 26/2018<br>B. PP 96/2021<br>C. Kepmen 1827.K/2018<br>D. Kepres 41/2004", "ans": "c" },
+
+      { "id": "fenv-0001", "cat": "ENV", "text": "Oli bekas memiliki kode Limbah B3<br>A. B108d<br>B. B105d<br>C. A108d<br>D. A337-1", "ans": "b" },
+      { "id": "fenv-0002", "cat": "ENV", "text": "Perhitungan debit limbah tambang — aspek berikut TIDAK diperhatikan<br>A. Luas catchment area<br>B. Intensitas curah hujan<br>C. Warna air sampel<br>D. Kecepatan aliran", "ans": "c" },
+      { "id": "fenv-0003", "cat": "ENV", "text": "Permeabilitas adalah<br>A. Sifat bahan berpori yang membiarkan cairan mengalir<br>B. Sifat cairan yang mengalir dari atas ke bawah<br>C. Ketinggian suatu tempat<br>D. Proses pemisahan berdasarkan titik didih", "ans": "a" },
+      { "id": "fenv-0004", "cat": "ENV", "text": "TSS diklasifikasikan menjadi parameter adalah<br>A. Kimia<br>B. Biologi<br>C. Fisika<br>D. Semua salah", "ans": "c" },
+      { "id": "fenv-0005", "cat": "ENV", "text": "Kapasitas bundwall pada area penyimpanan LB3 minimal<br>A. 110% bahan maksimum<br>B. 120% bahan maksimum<br>C. 130% bahan maksimum<br>D. 150% bahan maksimum", "ans": "a" },
+
+      { "id": "fohih-0001", "cat": "OHIH", "text": "Contoh bahan berbahaya dalam debu adalah<br>A. Nitrogen & oksigen<br>B. Silika, asbes, logam berat<br>C. Uap air & CO2<br>D. Ozon & NO2", "ans": "b" },
+      { "id": "fohih-0002", "cat": "OHIH", "text": "Urutan tindakan saat pekerja roboh, tidak sadar & tidak bernapas<br>A. Cek napas → AED → CPR → Bantuan → Aman<br>B. Aman → Bantuan → AED → Napas → CPR<br>C. Aman → Cek respon & napas → Bantuan & AED → CPR → AED → Lanjut CPR<br>D. Bantuan → Napas → CPR → Aman → AED", "ans": "c" },
+      { "id": "fohih-0003", "cat": "OHIH", "text": "Alat pengukur kualitas udara tambang mendeteksi<br>A. Suhu & kelembaban<br>B. Gas beracun, debu & kadar oksigen<br>C. Kebisingan alat berat<br>D. Tekanan darah pekerja", "ans": "b" }
+    ]
+  }
+  </script>
+
+  <!-- TAKE OVER QUESTION BANK (opsional; kosong = ambil dari sisa regular) -->
+  <script type="application/json" id="takeoverBank">
+  { "items": [] }
+  </script>
+
+  <!-- TOMBOL REASSIGN -->
+  <button id="reassignBtn" class="reassignBtn" onclick="reassignAnswerPrompt()">🔁 Reassign Jawaban</button>
+
+  <!-- App JS -->
+  <script src="Bingo.js"></script>
+</body>
+</html>
+
+
