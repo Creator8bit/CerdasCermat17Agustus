@@ -20,7 +20,6 @@
 
 /* ---------- Utilities ---------- */
 function shuffle(arr){ const a=(arr||[]).slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
-function sum(obj){ return Object.values(obj).reduce((a,b)=>a+b,0); }
 function dedupeById(arr){ const s=new Set(); return (arr||[]).filter(x=>x&&x.id&&!s.has(x.id)&&(s.add(x.id),true)); }
 
 /* ---------- Team Colors (inline override for Bingo) ---------- */
@@ -31,147 +30,11 @@ const TEAM_COLOR_MAP = {
   D: { bg:'#EB5757', fg:'#ffffff' }  // merah
 };
 
-/* ---------- Category helpers ---------- */
-function normalizeRegCategory(q){
-  const raw=(q.cat||q.category||'').toString().toUpperCase().trim();
-  if(['OHIH','RCA','ENV','ESDM'].includes(raw)) return raw;
-  const id=(q.id||'').toLowerCase();
-  if(id.startsWith('ohih-')) return 'OHIH';
-  if(id.startsWith('rca-'))  return 'RCA';
-  if(id.startsWith('env-'))  return 'ENV';
-  if(id.startsWith('esdm-')) return 'ESDM';
-  return '';
-}
-function normalizeTOCategory(q){
-  const raw=(q.cat||q.category||'').toString().toUpperCase().trim();
-  if(['TOHIH','TRCA','TENV','TESDM'].includes(raw)) return raw;
-  const id=(q.id||'').toLowerCase();
-  if(id.startsWith('tohih-')) return 'TOHIH';
-  if(id.startsWith('trca-'))  return 'TRCA';
-  if(id.startsWith('tenv-'))  return 'TENV';
-  if(id.startsWith('tesdm-')) return 'TESDM';
-  if(id.startsWith('ohih-')) return 'TOHIH';
-  if(id.startsWith('rca-'))  return 'TRCA';
-  if(id.startsWith('env-'))  return 'TENV';
-  if(id.startsWith('esdm-')) return 'TESDM';
-  return '';
-}
-function groupByKeys(arr, normalizerFn, keys){
-  const g=keys.reduce((m,k)=>(m[k]=[],m),{}); g.UNSET=[];
-  for(const q of dedupeById(arr||[])){ const k=normalizerFn(q); (keys.includes(k)?g[k]:g.UNSET).push(q); }
-  return g;
-}
-function takeRandom(arr,n){ const a=shuffle(arr||[]); return a.slice(0,Math.min(n,a.length)); }
-function removeTaken(poolArr,takenArr){ for(const t of (takenArr||[])){ const i=poolArr.findIndex(x=>x.id===t.id); if(i>=0) poolArr.splice(i,1);} }
-
-/* ---------- Load banks from HTML ---------- */
-function readJsonScript(id){
-  const el=document.getElementById(id); if(!el) return {items:[]};
-  try{
-    const raw=el.textContent||el.innerText||'';
-    const data=JSON.parse(raw||'{}');
-    return (data && Array.isArray(data.items))?data:{items:[]};
-  }catch{
-    console.warn('Gagal parse JSON:',id);
-    return {items:[]};
-  }
-}
-function loadBankFromHTML(){
-  const REG=readJsonScript('regularBank').items;
-  const TO=readJsonScript('takeoverBank').items; // opsional fallback
-  return {reg:REG,to:TO};
-}
-// Loader finalBank (bank soal tetap di HTML)
-function loadFinalBankFromHTML(){
-  const F=readJsonScript('finalBank').items;
-  return Array.isArray(F)?F:[];
-}
-
-/* ---------- Quotas ---------- */
-const REGULAR_QUOTA={OHIH:5,RCA:5,ENV:5,ESDM:5}; // 20
-const TAKEOVER_TOTAL=5;
-
 /* ---------- Event persistence ---------- */
 function eventKey(eventId){ return `quiz-event:${eventId}`; }
 function roundStateKey(eventId,roundNo){ return `quiz-state:${eventId}:round${roundNo}`; }
 function loadEvent(eventId){ const raw=localStorage.getItem(eventKey(eventId)); if(!raw) return null; try{ return JSON.parse(raw);}catch{return null;} }
 function saveEvent(ev){ localStorage.setItem(eventKey(ev.eventId),JSON.stringify(ev)); }
-
-/* ---------- Init event ---------- */
-function initEventIfNeeded(eventId){
-  let ev=loadEvent(eventId);
-  if(ev && ev.reg && ev.to) return ev;
-
-  const {reg,to}=loadBankFromHTML();
-  const regG=groupByKeys(reg,normalizeRegCategory,['OHIH','RCA','ENV','ESDM']);
-  const toG =groupByKeys(to ,normalizeTOCategory ,['TOHIH','TRCA','TENV','TESDM']);
-
-  ev={
-    eventId,
-    reg:{
-      OHIH:shuffle(regG.OHIH||[]),
-      RCA :shuffle(regG.RCA ||[]),
-      ENV :shuffle(regG.ENV ||[]),
-      ESDM:shuffle(regG.ESDM||[])
-    },
-    to:{ // fallback bila sisa REG kurang
-      TOHIH:shuffle(toG.TOHIH||[]),
-      TRCA :shuffle(toG.TRCA||[]),
-      TENV :shuffle(toG.TENV||[]),
-      TESDM:shuffle(toG.TESDM||[])
-    },
-    roundsDrawn:0
-  };
-  saveEvent(ev); return ev;
-}
-
-/* ---------- Draw round (REGULAR mode) ---------- */
-function drawNextRound(eventId){
-  const ev=initEventIfNeeded(eventId);
-  if(ev.roundsDrawn>=4) throw new Error("4 rounds already prepared for this event");
-  const REG_TOTAL=sum(REGULAR_QUOTA);
-
-  // Regular 20
-  let regPicked=[];
-  for(const cat of Object.keys(REGULAR_QUOTA)){
-    const got=takeRandom(ev.reg[cat]||[], REGULAR_QUOTA[cat]);
-    regPicked.push(...got);
-  }
-  let def=REG_TOTAL-regPicked.length;
-  if(def>0){
-    const pool=[].concat(ev.reg.OHIH||[],ev.reg.RCA||[],ev.reg.ENV||[],ev.reg.ESDM||[]);
-    regPicked.push(...takeRandom(pool,def));
-  }
-  if(regPicked.length<REG_TOTAL) throw new Error("REGULAR pool < 20. Isi #regularBank.");
-
-  removeTaken(ev.reg.OHIH, regPicked.filter(q=>normalizeRegCategory(q)==='OHIH'));
-  removeTaken(ev.reg.RCA , regPicked.filter(q=>normalizeRegCategory(q)==='RCA' ));
-  removeTaken(ev.reg.ENV , regPicked.filter(q=>normalizeRegCategory(q)==='ENV' ));
-  removeTaken(ev.reg.ESDM, regPicked.filter(q=>normalizeRegCategory(q)==='ESDM'));
-
-  // Take Over 5 dari sisa REG
-  const remainReg=[].concat(ev.reg.OHIH||[], ev.reg.RCA||[], ev.reg.ENV||[], ev.reg.ESDM||[]);
-  let toPicked = takeRandom(remainReg, TAKEOVER_TOTAL);
-
-  // fallback lunak ke bank TO bila kurang
-  if(toPicked.length < TAKEOVER_TOTAL){
-    const need = TAKEOVER_TOTAL - toPicked.length;
-    const toFlat=[].concat(ev.to.TOHIH||[], ev.to.TRCA||[], ev.to.TENV||[], ev.to.TESDM||[]);
-    const extra=takeRandom(toFlat, need);
-    toPicked = toPicked.concat(extra);
-    removeTaken(ev.to.TOHIH, extra.filter(q=>normalizeTOCategory(q)==='TOHIH'));
-    removeTaken(ev.to.TRCA , extra.filter(q=>normalizeTOCategory(q)==='TRCA' ));
-    removeTaken(ev.to.TENV , extra.filter(q=>normalizeTOCategory(q)==='TENV' ));
-    removeTaken(ev.to.TESDM, extra.filter(q=>normalizeTOCategory(q)==='TESDM'));
-  }
-  removeTaken(ev.reg.OHIH, toPicked.filter(q=>normalizeRegCategory(q)==='OHIH'));
-  removeTaken(ev.reg.RCA , toPicked.filter(q=>normalizeRegCategory(q)==='RCA' ));
-  removeTaken(ev.reg.ENV , toPicked.filter(q=>normalizeRegCategory(q)==='ENV' ));
-  removeTaken(ev.reg.ESDM, toPicked.filter(q=>normalizeRegCategory(q)==='ESDM'));
-
-  ev.roundsDrawn+=1; saveEvent(ev);
-  return { roundNo:ev.roundsDrawn, regular20:shuffle(regPicked), takeover5:shuffle(toPicked) };
-}
 
 /* ---------- State ---------- */
 let teams={ A:{name:"Tim A",score:0}, B:{name:"Tim B",score:0}, C:{name:"Tim C",score:0}, D:{name:"Tim D",score:0} };
@@ -444,14 +307,6 @@ function startGame(){
   if(!sid){ alert("Mohon isi Session ID (sebagai Event ID)."); return; }
   eventId=sid;
 
-  const ev=initEventIfNeeded(eventId);
-  let loaded=false;
-  if(ev.roundsDrawn>0){
-    roundNo=ev.roundsDrawn;
-    loaded=loadState(eventId,roundNo);
-    if(loaded && mode==="ended") loaded=false;
-  }
-
   if(!loaded){
     try{
       const draw=drawNextRound(eventId);
@@ -470,53 +325,6 @@ function startGame(){
   document.getElementById("takeoverBox").classList.toggle("hidden", mode!=="takeover");
   if(mode==="takeover") renderTakeover();
 }
-
-/* ---------- START FINAL (20 REG + 5 TO dari #finalBank; flow sama REGULAR) ---------- */
-function startFinal(){
-  applyTeamNamesFromInputs();
-  bindTeamNameInputs();
-  hideLegacyTOButtons();
-
-  const sid = document.getElementById("sessionId")?.value?.trim();
-  if(!sid){ alert("Mohon isi Session ID (sebagai Event ID)."); return; }
-  eventId = sid;
-
-  // Reset skor & state (fresh)
-  for(let t in teams) teams[t].score=0;
-  activeTeam='A';
-  bingoHappened=false;
-  currentCell=null;
-  reassignMode=false;
-  regIndex=0;
-  boardLocked=false;
-
-  // Muat 25 dari finalBank (kalau kurang, pakai semua yang ada)
-  const finalItems = loadFinalBankFromHTML();
-  if(finalItems.length === 0){
-    alert("Bank FINAL kosong (#finalBank).");
-    return;
-  }
-  const picked = shuffle(finalItems).slice(0, Math.min(25, finalItems.length));
-
-  // Bagi: 20 untuk REGULAR + 5 untuk TAKEOVER
-  regularQuestions  = picked.slice(0, Math.min(20, picked.length));
-  takeoverQuestions = picked.slice(20, Math.min(25, picked.length));
-
-  // RoundNo pakai label 'final' untuk storage agar tidak bentrok babak angka
-  roundNo = 'final';
-  mode="regular";
-  generateBoard();
-  saveState();
-
-  // UI persis startGame (mulai di REGULAR)
-  timerReset();
-  updateScores(); renderBoard();
-  document.getElementById("hostControls").classList.add("hidden");
-  document.getElementById("questionBox").classList.add("hidden");
-  document.getElementById("takeoverBox").classList.add("hidden");
-}
-// expose
-window.startFinal = startFinal;
 
 /* ---------- Board ---------- */
 function generateBoard(){
@@ -1088,29 +896,6 @@ function updateScores(){
   d.innerText=`Tim D (${teams.D.name}): ${teams.D.score}`;
   a.classList.add('teamA'); b.classList.add('teamB'); c.classList.add('teamC'); d.classList.add('teamD');
   [['A',a],['B',b],['C',c],['D',d]].forEach(([k,el])=>{ el.classList.toggle('active',activeTeam===k); el.onclick=()=>setActiveTeam(k); el.title="Klik untuk pilih pemain aktif"; });
-}
-
-/* ---------- Admin helpers ---------- */
-function resetEvent(){
-  const sid=document.getElementById("sessionId")?.value?.trim(); if(!sid) return alert("Isi Session ID dulu.");
-  localStorage.removeItem(eventKey(sid)); 
-  for(let r=1;r<=4;r++){ localStorage.removeItem(roundStateKey(sid,r)); }
-  localStorage.removeItem(roundStateKey(sid,'final')); // bersihkan round final juga
-  alert("Event di-reset. Pool akan dibuat ulang setelah Start Game/Start Final.");
-}
-function nextRound(){
-  const sid=document.getElementById("sessionId")?.value?.trim(); if(!sid) return alert("Isi Session ID dulu.");
-  eventId=sid;
-  try{
-    const draw=drawNextRound(eventId);
-    roundNo=draw.roundNo; regularQuestions=draw.regular20; takeoverQuestions=draw.takeover5;
-    for(let t in teams) teams[t].score=0;
-    mode="regular"; bingoHappened=false; currentCell=null; reassignMode=false; regIndex=0; boardLocked=false; activeTeam='A';
-    generateBoard(); saveState(); updateScores(); renderBoard();
-    timerReset();
-    document.getElementById("takeoverBox").classList.add("hidden");
-    showPopup(`➡️ Babak ${roundNo} dimulai.`, {center:true});
-  }catch(e){ alert(e.message||"Tidak bisa lanjut babak: "+(e?.message||e)); }
 }
 
 /* ---------- Legacy TO buttons helper ---------- */
