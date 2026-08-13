@@ -792,23 +792,21 @@ function checkBingo(teamKey){
     .filter(line => line.every(hasTeamIdx));
 
   if (winningLines.length === 0) return;
-
-  bingoHappened=true;
+  teams[teamKey].score += 50;
+  updateScores();
+  saveState();
 
   const winSet = new Set(winningLines.flat());
   boardCells.forEach(c=>{
     if (winSet.has(c.idx)) {
       c.bingoWin = true;
-      c.team = teamKey;
     }
   });
 
   const winnerName = teams[teamKey]?.name || `Tim ${teamKey}`;
-  showPopup(`🎉 BINGO! Selamat ${winnerName} Menang Cap Cip Cup K3 2026!`, {sticky:true});
+  showPopup(`🎉 BINGO! Selamat ${winnerName} +50 point!`, {center:true});
 
-  timerReset();
-  mode="ended"; saveState(); renderBoard();
-  document.getElementById("takeoverBox").classList.add("hidden");
+  renderBoard();
 }
 
 /* ---------- Regular → Takeover ---------- */
