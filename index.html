@@ -4,8 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cerdas Cermat Hari Kemerdekaan 2026 - Vale IGP Pomalaa</title>
+
   <link rel="stylesheet" href="Bingo.css"/>
-  <link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNVrhCstadVW1svZyGPGI2Lb4goXSUOeC_eHXjgIb5oQ&s=10">
+
+  <link rel="icon" type="image/png"
+        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNVrhCstadVW1svZyGPGI2Lb4goXSUOeC_eHXjgIb5oQ&s=10">
 </head>
 <body>
 
@@ -15,13 +18,154 @@
       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNVrhCstadVW1svZyGPGI2Lb4goXSUOeC_eHXjgIb5oQ&s=10"
       alt="Logo Petrosea"
       class="site-logo" />
+
     <h1 class="site-title">CAP-CIP-CUP FINAL</h1>
   </header>
 
-  <!-- Input Tim & Session -->
-<div class="setup-panel">
+  <!-- Setup -->
+  <div class="setup-panel">
 
+    <input
+      type="text"
+      id="sessionId"
+      placeholder="Session ID (Mandatory)" />
+
+    <input
+      type="text"
+      id="teamA"
+      placeholder="Nama Tim A" />
+
+    <input
+      type="text"
+      id="teamB"
+      placeholder="Nama Tim B" />
+
+    <input
+      type="text"
+      id="teamC"
+      placeholder="Nama Tim C" />
+
+    <input
+      type="text"
+      id="teamD"
+      placeholder="Nama Tim D" />
+
+    <button
+      id="startBtn"
+      onclick="startGame()">
+      Start Game
+    </button>
+
+  </div>
+
+  <!-- Scoreboard -->
+  <div id="scores">
+    <h3 id="scoreA" title="Klik untuk pilih pemain aktif">
+      Tim A: 0
+    </h3>
+
+    <h3 id="scoreB" title="Klik untuk pilih pemain aktif">
+      Tim B: 0
+    </h3>
+
+    <h3 id="scoreC" title="Klik untuk pilih pemain aktif">
+      Tim C: 0
+    </h3>
+
+    <h3 id="scoreD" title="Klik untuk pilih pemain aktif">
+      Tim D: 0
+    </h3>
+  </div>
+
+  <!-- Regular Question -->
+  <div id="questionBox" class="hidden">
+    <div id="questionText" class="question-text"></div>
+    <div id="answersArea" class="answers-area"></div>
+  </div>
+
+  <!-- Take Over -->
+  <div id="takeoverBox" class="hidden">
+
+    <div>
+      <strong id="takeoverTitle">
+        Take Over Round
+      </strong>
+      -
+      <span id="takeoverProgress">
+        0/5
+      </span>
+    </div>
+
+    <pre
+      id="takeoverText"
+      style="white-space:pre-wrap;margin:8px 0;"></pre>
+
+    <div id="toAnswersArea"
+         class="answers-area"></div>
+
+    <div id="legacyTOButtons">
+
+      <button type="button" onclick="answertakeOver('A')">
+        Tim A Benar
+      </button>
+
+      <button type="button" onclick="answertakeOver('B')">
+        Tim B Benar
+      </button>
+
+      <button type="button" onclick="answertakeOver('C')">
+        Tim C Benar
+      </button>
+
+      <button type="button" onclick="answertakeOver('D')">
+        Tim D Benar
+      </button>
+
+      <br>
+
+      <button type="button" class="wrongBtn" onclick="wrongtakeOver('A')">
+        Tim A Salah
+      </button>
+
+      <button type="button" class="wrongBtn" onclick="wrongtakeOver('B')">
+        Tim B Salah
+      </button>
+
+      <button type="button" class="wrongBtn" onclick="wrongtakeOver('C')">
+        Tim C Salah
+      </button>
+
+      <button type="button" class="wrongBtn" onclick="wrongtakeOver('D')">
+        Tim D Salah
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- Popup -->
+  <div id="popup" class="hidden"></div>
+
+  <!-- Big Mark -->
+  <div id="bigMark" class="hidden"></div>
+
+  <!-- Board -->
+  <div id="gameBoard"></div>
+
+  <!-- Hidden legacy panel -->
+  <div id="hostControls" class="hidden"></div>
+
+  <!-- Reassign -->
+  <button
+    id="reassignBtn"
+    class="reassignBtn"
+    onclick="reassignAnswerPrompt()">
+    🔁 Reassign Jawaban
+  </button>
+
+  <!-- Upload Excel (dipindah ke bawah banget) -->
   <div class="upload-area">
+
     <label for="excelFile" class="upload-btn">
       📄 Upload Bank Soal
     </label>
@@ -30,84 +174,22 @@
       type="file"
       id="excelFile"
       accept=".xlsx,.xls"
-      hidden
-    />
+      hidden />
 
-    <span id="fileName">Belum ada file dipilih</span>
+    <span id="fileName">
+      Belum ada file dipilih
+    </span>
+
   </div>
 
-  <input type="text" id="sessionId" placeholder="Session ID (Mandatory)" />
+  <footer id="footer">
+    ©Creator8-bit 2025
+  </footer>
 
-  <input type="text" id="teamA" placeholder="Nama Tim A" />
-  <input type="text" id="teamB" placeholder="Nama Tim B" />
-  <input type="text" id="teamC" placeholder="Nama Tim C" />
-  <input type="text" id="teamD" placeholder="Nama Tim D" />
+  <!-- XLSX -->
+  https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  <button id="startBtn" onclick="startGame()">
-    Start Game
-  </button>
-
-</div>
-
-  <!-- Scoreboard -->
-  <div id="scores">
-    <h3 id="scoreA" class="score-badge" title="Klik untuk pilih pemain aktif">Tim A: 0</h3>
-    <h3 id="scoreB" class="score-badge" title="Klik untuk pilih pemain aktif">Tim B: 0</h3>
-    <h3 id="scoreC" class="score-badge" title="Klik untuk pilih pemain aktif">Tim C: 0</h3>
-    <h3 id="scoreD" class="score-badge" title="Klik untuk pilih pemain aktif">Tim D: 0</h3>
-  </div>
-
-  <!-- REGULAR: Box -->
-  <div id="questionBox" class="hidden">
-    <div id="questionText" class="question-text"></div>
-    <div id="answersArea" class="answers-area"></div>
-  </div>
-
-  <!-- TAKEOVER: Box (juga dipakai 100% saat FINAL) -->
-  <div id="takeoverBox" class="hidden">
-    <div>
-      <strong id="takeoverTitle">Take Over Round</strong> -
-      <span id="takeoverProgress">0/5</span>
-    </div>
-    <pre id="takeoverText" style="white-space:pre-wrap;margin:8px 0;"></pre>
-    <div id="toAnswersArea" class="answers-area"></div>
-
-    <!-- Tombol mode lama (tetap hidden) -->
-    <div id="legacyTOButtons">
-      <button type="button" onclick="answertakeOver('A')">Tim A benar</button>
-      <button type="button" onclick="answertakeOver('B')">Tim B benar</button>
-      <button type="button" onclick="answertakeOver('C')">Tim C benar</button>
-      <button type="button" onclick="answertakeOver('D')">Tim D benar</button>
-      <br />
-      <button type="button" class="wrongBtn" onclick="wrongtakeOver('A')">Tim A Salah</button>
-      <button type="button" class="wrongBtn" onclick="wrongtakeOver('B')">Tim B Salah</button>
-      <button type="button" class="wrongBtn" onclick="wrongtakeOver('C')">Tim C Salah</button>
-      <button type="button" class="wrongBtn" onclick="wrongtakeOver('D')">Tim D Salah</button>
-      <br />
-    </div>
-  </div>
-
-  <!-- Popup -->
-  <div id="popup" class="hidden"></div>
-
-  <!-- BigMark (disabled by CSS) -->
-  <div id="bigMark" class="hidden"></div>
-
-  <!-- Board -->
-  <div id="gameBoard"></div>
-
-  <!-- Panel lama (disembunyikan) -->
-  <div id="hostControls" class="hidden"></div>
-
-  <footer id="footer">©Creator8-bit 2025</footer>
-
-  <!-- TOMBOL REASSIGN -->
-  <button id="reassignBtn" class="reassignBtn" onclick="reassignAnswerPrompt()">🔁 Reassign Jawaban</button>
-
-  <!-- SheetJS -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  
-  <!-- App JS -->
+  <!-- App -->
   <script src="Bingo.js"></script>
+
 </body>
-</html>
