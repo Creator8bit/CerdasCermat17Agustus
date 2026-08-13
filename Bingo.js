@@ -1,23 +1,3 @@
-/* =========================
-   Cap-Cip-Cup K3 - Bingo.js (MCQ only)
-   + Live team name
-   + Take Over dari sisa REGULAR (fallback opsional)
-   + Simpan TO ke boardCells (questionId/text) seperti Regular (persist)
-   + Safe open (skip bad MCQ)
-   + Popup feedback + SFX (tanpa BigMark, tanpa hint banner)
-   + Operator-driven close/next (klik layar / Enter/Space)
-   + Keep colors at game end (no grey-out massal)
-   + Bingo color sesuai tim + popup BINGO sticky
-   + TO prompt fallback (ambil teks sebelum A–D bila parser kosong)
-   + Legacy TO buttons di-hide
-   + Timer Dock (Answer/TO 5s & Steal 10s) dengan posisi baseline-locked
-
-   *** UPDATE (FINAL MODE) ***
-   + Mode FINAL sama seperti REGULAR: 20 REG + 5 TAKEOVER dari #finalBank
-     - Tambahan fungsi: loadFinalBankFromHTML(), startFinal()
-     - Tidak mengubah flow engine lainnya
-   ========================= */
-
 /* ---------- Utilities ---------- */
 function shuffle(arr){ const a=(arr||[]).slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
 function dedupeById(arr){ const s=new Set(); return (arr||[]).filter(x=>x&&x.id&&!s.has(x.id)&&(s.add(x.id),true)); }
@@ -43,6 +23,112 @@ let eventId=null, roundNo=null;
 let regularQuestions=[], takeoverQuestions=[];
 let boardCells=[], takeoverQueue=[], takeoverIndex=0, regIndex=0;
 let boardLocked=false;
+
+/* ---------- Excel Question Bank ---------- */
+let uploadedQuestions = [];
+function splitQuestionBank(){
+  regularQuestions = uploadedQuestions.filter(q =>
+    !String(q.id || '').toUpperCase().includes('TO')
+  );
+
+  takeoverQuestions = uploadedQuestions.filter(q =>
+    String(q.id || '').toUpperCase().includes('TO')
+  );
+
+  regularQuestions = shuffle(regularQuestions);
+  takeoverQuestions = shuffle(takeoverQuestions);
+
+  return {
+    regular: regularQuestions.length,
+    takeover: takeoverQuestions.length
+  };
+}
+function validateQuestionBank(){
+
+  if(uploadedQuestions.length === 0){
+    throw new Error("Silakan upload Bank Soal terlebih dahulu.");
+  }
+
+  const info = splitQuestionBank();
+
+  if(info.regular < 20){
+    throw new Error(
+      `Soal REGULAR hanya ${info.regular}. Minimal 20 soal.`
+    );
+  }
+
+  if(info.takeover < 5){
+    throw new Error(
+      `Soal TAKEOVER hanya ${info.takeover}. Minimal 5 soal.`
+    );
+  }
+
+  return true;
+}
+
+/* ---------- Excel Upload ---------- */
+
+async function parseExcelFile(file){
+
+  const data = await file.arrayBuffer();
+
+  const workbook = XLSX.read(data,{
+    type:'array'
+  });
+
+  const sheet =
+    workbook.Sheets[
+      workbook.SheetNames[0]
+    ];
+
+  const rows =
+    XLSX.utils.sheet_to_json(sheet,{
+      defval:''
+    });
+
+  uploadedQuestions = rows.map((r,i)=>({
+
+    id:
+      String(
+        r.ID ||
+        r.Id ||
+        r.id ||
+        ''
+      ).trim(),
+
+    text: `${String(
+        r.Pertanyaan ||
+        r.Question ||
+        r.question ||
+        ''
+      ).trim()}
+      
+    A. ${String(r.A || '').trim()}
+    B. ${String(r.B || '').trim()}
+    C. ${String(r.C || '').trim()}
+    D. ${String(r.D || '').trim()}`,
+
+    ans:
+      String(
+        r.Jawaban ||
+        r.Answer ||
+        r.answer ||
+        ''
+      )
+      .trim()
+      .toLowerCase()      
+
+  }))
+  .filter(q => q.id);
+
+  const info = splitQuestionBank();
+
+  showPopup(
+    `✅ ${uploadedQuestions.length} soal dimuat\nREG:${info.regular}\nTO:${info.takeover}`,
+    { center:true }
+  );
+
+}
 
 /* ---------- Persist round ---------- */
 function saveState(){
@@ -306,18 +392,38 @@ function startGame(){
   const sid=document.getElementById("sessionId")?.value?.trim();
   if(!sid){ alert("Mohon isi Session ID (sebagai Event ID)."); return; }
   eventId=sid;
+  
+   try{
 
-  if(!loaded){
-    try{
-      const draw=drawNextRound(eventId);
-      roundNo=draw.roundNo; regularQuestions=draw.regular20; takeoverQuestions=draw.takeover5;
-      for(let t in teams) teams[t].score=0;
-      mode="regular"; bingoHappened=false; currentCell=null; reassignMode=false; regIndex=0; boardLocked=false;
-      activeTeam='A';
-      generateBoard(); saveState();
-    }catch(e){ alert(e.message||"Gagal membuat babak baru (cek bank soal)."); return; }
+  validateQuestionBank();
+
+  for(let t in teams){
+    teams[t].score = 0;
   }
 
+  mode = "regular";
+  bingoHappened = false;
+  currentCell = null;
+  reassignMode = false;
+
+  regIndex = 0;
+  boardLocked = false;
+
+  activeTeam = "A";
+
+  roundNo = 1;
+
+  generateBoard();
+
+  saveState();
+
+}catch(e){
+
+  alert(e.message);
+  return;
+
+}
+   
   timerReset();
   updateScores(); renderBoard();
   document.getElementById("hostControls").classList.add("hidden");
@@ -1055,17 +1161,39 @@ startGame = function(){
   });
 };
 
-const __next_base = nextRound;
-nextRound = function(){
-  __next_base.apply(this, arguments);
-  requestAnimationFrame(()=>{
-    __timerDockBaseline = null;
-    lockTimerDockBaseline();
-    positionTimerDock();
-  });
-};
-
 requestAnimationFrame(()=>{ lockTimerDockBaseline(); positionTimerDock(); });
+
+document.addEventListener('DOMContentLoaded',()=>{
+
+  const fileInput =
+    document.getElementById('excelFile');
+
+  if(!fileInput) return;
+
+  fileInput.addEventListener(
+    'change',
+    async (e)=>{
+
+      const file = e.target.files?.[0];
+
+      if(!file) return;
+
+      try{
+
+        await parseExcelFile(file);
+
+      }catch(err){
+
+        console.error(err);
+
+        alert(
+          'Gagal membaca file Excel.'
+        );
+      }
+    }
+  );
+
+});
 
 /* ---------- Expose ---------- */
 window.startGame=startGame;
@@ -1074,8 +1202,6 @@ window.answertakeOver=(team)=>answerTakeover(team);
 window.wrongTakeover=wrongTakeover;
 window.wrongtakeOver=(team)=>wrongTakeover(team);
 window.reassignAnswerPrompt=reassignAnswerPrompt;
-window.resetEvent=resetEvent;
-window.nextRound=nextRound;
 
 /* =========================
    === FULL ADMIN FEATURES ===
