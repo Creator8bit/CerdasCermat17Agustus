@@ -122,11 +122,11 @@ async function parseExcelFile(file){
   .filter(q => q.id);
 
   const info = splitQuestionBank();
-
-  showPopup(
-    `✅ ${uploadedQuestions.length} soal dimuat\nREG:${info.regular}\nTO:${info.takeover}`,
-    { center:true }
-  );
+  const fileNameEl = document.getElementById('fileName');
+  if(fileNameEl){
+    fileNameEl.textContent =
+      `${uploadedQuestions.length} Soal | REG:${info.regular} | TO:${info.takeover}`;
+}
 
 }
 
