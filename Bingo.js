@@ -23,6 +23,11 @@ let eventId=null, roundNo=null;
 let regularQuestions=[], takeoverQuestions=[];
 let boardCells=[], takeoverQueue=[], takeoverIndex=0, regIndex=0;
 let boardLocked=false;
+let bingoBonus = {
+  diagonal1: false,
+  horizontal1: false,
+  vertical1: false,
+},
 
 /* ---------- Excel Question Bank ---------- */
 let uploadedQuestions = [];
@@ -405,6 +410,11 @@ function startGame(){
   bingoHappened = false;
   currentCell = null;
   reassignMode = false;
+  bingoBonus = {
+    diagonal1: false,
+    horizontal1: false,
+    vertical1: false
+  };
 
   regIndex = 0;
   boardLocked = false;
@@ -1250,7 +1260,7 @@ window.toggleAdminMode = toggleAdminMode;
   }, true);
 })();
 
-/* ---- Admin: Bingo Recalc ---- */
+/* ---- Admin: Bingo Recall ---- */
 function _recalcBingoAll(){
   if(!Array.isArray(boardCells)) return;
   boardCells.forEach(c=>{ c.bingoWin = false; });
