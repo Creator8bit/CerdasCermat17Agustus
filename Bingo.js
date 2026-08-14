@@ -24,10 +24,10 @@ let regularQuestions=[], takeoverQuestions=[];
 let boardCells=[], takeoverQueue=[], takeoverIndex=0, regIndex=0;
 let boardLocked=false;
 let bingoBonus = {
-  diagonal1: false,
-  horizontal1: false,
-  vertical1: false,
-},
+  diagonal: false,
+  horizontal: false,
+  vertical: false,
+};
 
 /* ---------- Excel Question Bank ---------- */
 let uploadedQuestions = [];
@@ -138,7 +138,7 @@ async function parseExcelFile(file){
 /* ---------- Persist round ---------- */
 function saveState(){
   if(!eventId||!roundNo) return;
-  const s={eventId,roundNo,mode,bingoHappened,boardCells,takeoverQueue,takeoverIndex,teams,regularQuestions,takeoverQuestions,regIndex,activeTeam};
+  const s={eventId,roundNo,mode,bingoHappened,boardCells,takeoverQueue,takeoverIndex,teams,regularQuestions,takeoverQuestions,regIndex,activeTeam,bingo};
   localStorage.setItem(roundStateKey(eventId,roundNo), JSON.stringify(s));
 }
 function loadState(eid,rno){
@@ -150,6 +150,12 @@ function loadState(eid,rno){
     boardCells=s.boardCells; takeoverQueue=s.takeoverQueue; takeoverIndex=s.takeoverIndex;
     teams=s.teams; regularQuestions=s.regularQuestions||[]; takeoverQuestions=s.takeoverQuestions||[];
     regIndex=typeof s.regIndex==='number'?s.regIndex:0; activeTeam=s.activeTeam||null;
+
+    bingoBonus = s.bingoBonus || {
+      diagonal:false,
+      horizontal:false,
+      vertical:false
+    };
 
     try{
       if (document.getElementById("teamA")) document.getElementById("teamA").value = teams?.A?.name || "Tim A";
@@ -411,9 +417,9 @@ function startGame(){
   currentCell = null;
   reassignMode = false;
   bingoBonus = {
-    diagonal1: false,
-    horizontal1: false,
-    vertical1: false
+    diagonal: false,
+    horizontal: false,
+    vertical: false
   };
 
   regIndex = 0;
@@ -791,30 +797,100 @@ function handleReassignDOM(cellDiv){
 
 /* ---------- Bingo ---------- */
 function checkBingo(teamKey){
-  const rows = Array.from({length:5}, (_,r)=>boardCells.slice(r*5,(r+1)*5).map(c=>c.idx));
-  const cols = Array.from({length:5}, (_,c)=>[0,1,2,3,4].map(r=>r*5+c));
-  const diag1 = [0,6,12,18,24];
-  const diag2 = [4,8,12,16,20];
-  const hasTeamIdx = idx => boardCells[idx].team === teamKey;
 
-  const winningLines = []
-    .concat(rows, cols, [diag1, diag2])
-    .filter(line => line.every(hasTeamIdx));
+  const hasTeam = idx =>
+    boardCells[idx].team === teamKey;
 
-  if (winningLines.length === 0) return;
-  teams[teamKey].score += 50;
+  const horizontalLines = Array.from(
+    {length:5},
+    (_,r)=>boardCells.slice(r*5,(r+1)*5).map(c=>c.idx)
+  );
+
+  const verticalLines = Array.from(
+    {length:5},
+    (_,c)=>[0,1,2,3,4].map(r=>r*5+c)
+  );
+
+  const diagonal1 = [0,6,12,18,24];
+
+  let awarded = false;
+
+  // ===== HORIZONTAL =====
+  const hasHorizontal =
+    horizontalLines.some(line =>
+      line.every(hasTeam)
+    );
+
+  if(hasHorizontal && !bingoBonus.horizontal){
+
+    bingoBonus.horizontal = true;
+
+    teams[teamKey].score += 50;
+
+    horizontalLines.forEach(line=>{
+      if(line.every(hasTeam)){
+        line.forEach(i=>{
+          boardCells[i].bingoWin = true;
+        });
+      }
+    });
+
+    awarded = true;
+  }
+
+  // ===== VERTICAL =====
+  const hasVertical =
+    verticalLines.some(line =>
+      line.every(hasTeam)
+    );
+
+  if(hasVertical && !bingoBonus.vertical){
+
+    bingoBonus.vertical = true;
+
+    teams[teamKey].score += 50;
+
+    verticalLines.forEach(line=>{
+      if(line.every(hasTeam)){
+        line.forEach(i=>{
+          boardCells[i].bingoWin = true;
+        });
+      }
+    });
+
+    awarded = true;
+  }
+
+  // ===== DIAGONAL 1 SAJA =====
+  const hasDiagonal =
+    diagonal1.every(hasTeam);
+
+  if(hasDiagonal && !bingoBonus.diagonal){
+
+    bingoBonus.diagonal = true;
+
+    teams[teamKey].score += 50;
+
+    diagonal1.forEach(i=>{
+      boardCells[i].bingoWin = true;
+    });
+
+    awarded = true;
+  }
+
+  if(!awarded) return;
+
   updateScores();
   saveState();
 
-  const winSet = new Set(winningLines.flat());
-  boardCells.forEach(c=>{
-    if (winSet.has(c.idx)) {
-      c.bingoWin = true;
-    }
-  });
+  const winnerName =
+    teams[teamKey]?.name ||
+    `Tim ${teamKey}`;
 
-  const winnerName = teams[teamKey]?.name || `Tim ${teamKey}`;
-  showPopup(`🎉 BINGO! Selamat ${winnerName} +50 point!`, {center:true});
+  showPopup(
+    `🎉 BINGO! ${winnerName} mendapat BONUS +50 poin!`,
+    {center:true}
+  );
 
   renderBoard();
 }
