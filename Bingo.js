@@ -887,6 +887,9 @@ function checkBingo(teamKey){
   
       awarded = true;
   }
+
+  if(!awarded) return;
+  
   updateScores();
   saveState();
 
