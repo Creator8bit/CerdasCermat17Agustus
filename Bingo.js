@@ -867,21 +867,26 @@ function checkBingo(teamKey){
     diagonal1.every(hasTeam) ||
     diagonal2.every(hasTeam);
 
-  if(diagonal1.every(hasTeam)){
-      diagonal1.forEach(i=>{
-          boardCells[i].bingoWin = true;
-      });
+  if(hasDiagonal && !bingoBonus.diagonal){
+  
+      bingoBonus.diagonal = true;
+  
+      teams[teamKey].score += 50;
+  
+      if(diagonal1.every(hasTeam)){
+          diagonal1.forEach(i=>{
+              boardCells[i].bingoWin = true;
+          });
+      }
+  
+      if(diagonal2.every(hasTeam)){
+          diagonal2.forEach(i=>{
+              boardCells[i].bingoWin = true;
+          });
+      }
+  
+      awarded = true;
   }
-
-  if(diagonal2.every(hasTeam)){
-      diagonal2.forEach(i=>{
-          boardCells[i].bingoWin = true;
-      });
-  }
-
-  awarded = true;
-}
-
   updateScores();
   saveState();
 
