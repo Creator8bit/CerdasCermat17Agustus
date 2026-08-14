@@ -1053,7 +1053,7 @@ function renderTakeover(){
     }
     renderBoard();
     saveState();
-}
+});
 function answerTakeover(teamKey){
   timerStopCore();
 
@@ -1078,7 +1078,7 @@ function answerTakeover(teamKey){
     renderBoard();
     saveState();
   });
-}
+  
 function wrongTakeover(teamKey, ansKey){
   timerStopCore();
 
