@@ -964,6 +964,7 @@ function skipTakeover(reason){
   saveState(); renderBoard();
 
   awaitOperatorClickTo(()=>{
+    document.getElementById("takeoverBox")?.classList.add("hidden");
     takeoverAnsweredCount+=1;
     if(takeoverAnsweredCount >= takeoverQueue.length){
       endRoundNoBingo();
@@ -975,6 +976,7 @@ function skipTakeover(reason){
 }
 function renderTakeover(){
   if(mode!=="takeover") return;
+  document.getElementById("takeoverBox")?.classList.remove("hidden");
   const total=takeoverQueue.length;
   if (takeoverAnsweredCount >= total){
     endRoundNoBingo();
@@ -1046,8 +1048,9 @@ function renderTakeover(){
     showPopup(`${teams[activeTeam].name} ${pen} poin`, {center:true});
 
     awaitOperatorClickTo(()=>{
-    takeoverAnsweredCount+=1;
-    if(takeoverAnsweredCount >= takeoverQueue.length){
+      document.getElementById("takeoverBox")?.classList.add("hidden");
+      takeoverAnsweredCount+=1;
+      if(takeoverAnsweredCount >= takeoverQueue.length){
       endRoundNoBingo();
       return;
     }
@@ -1076,6 +1079,7 @@ function answerTakeover(teamKey){
   saveState(); renderBoard();
 
   awaitOperatorClickTo(()=>{
+    document.getElementById("takeoverBox")?.classList.add("hidden");
     takeoverAnsweredCount+=1;
     if(takeoverAnsweredCount >= takeoverQueue.length){
       endRoundNoBingo();
@@ -1100,6 +1104,7 @@ function wrongTakeover(teamKey, ansKey){
   saveState(); renderBoard();
 
   awaitOperatorClickTo(()=>{
+    document.getElementById("takeoverBox")?.classList.add("hidden");
     takeoverAnsweredCount+=1;
     if(takeoverAnsweredCount >= takeoverQueue.length){
       endRoundNoBingo();
