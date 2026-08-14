@@ -1031,6 +1031,7 @@ function renderTakeover(){
     };
     answersArea.appendChild(btn);
   });
+}
 
   // Timer TO 5s
   timerPrepare('to', 5, ()=>{
@@ -1053,7 +1054,8 @@ function renderTakeover(){
     }
     renderBoard();
     saveState();
-});
+    });
+  }
 function answerTakeover(teamKey){
   timerStopCore();
 
@@ -1078,6 +1080,7 @@ function answerTakeover(teamKey){
     renderBoard();
     saveState();
   });
+}
   
 function wrongTakeover(teamKey, ansKey){
   timerStopCore();
