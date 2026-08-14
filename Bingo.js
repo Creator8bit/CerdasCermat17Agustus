@@ -965,6 +965,10 @@ function skipTakeover(reason){
 
   awaitOperatorClickTo(()=>{
     takeoverAnsweredCount+=1;
+    if(takeoverAnsweredCount >= takeoverQueue.length){
+      endRoundNoBingo();
+      return;
+    }
     renderBoard();
     saveState();
   });
@@ -1041,10 +1045,14 @@ function renderTakeover(){
     highlightCorrectButton("toAnswersArea", ansKey);
     showPopup(`${teams[activeTeam].name} ${pen} poin`, {center:true});
 
-    awaitOperatorClickTo(()=>{ takeoverIndex+=1; renderTakeover(); });
-  });
-
-  renderBoard();
+    awaitOperatorClickTo(()=>{
+    takeoverAnsweredCount+=1;
+    if(takeoverAnsweredCount >= takeoverQueue.length){
+      endRoundNoBingo();
+      return;
+    }
+    renderBoard();
+    saveState();
 }
 function answerTakeover(teamKey){
   timerStopCore();
@@ -1063,6 +1071,10 @@ function answerTakeover(teamKey){
 
   awaitOperatorClickTo(()=>{
     takeoverAnsweredCount+=1;
+    if(takeoverAnsweredCount >= takeoverQueue.length){
+      endRoundNoBingo();
+      return;
+    }
     renderBoard();
     saveState();
   });
@@ -1082,6 +1094,10 @@ function wrongTakeover(teamKey, ansKey){
 
   awaitOperatorClickTo(()=>{
     takeoverAnsweredCount+=1;
+    if(takeoverAnsweredCount >= takeoverQueue.length){
+      endRoundNoBingo();
+      return;
+    }
     renderBoard();
     saveState();
   });
