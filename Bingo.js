@@ -1054,7 +1054,9 @@ function renderTakeover(){
     renderBoard();
     saveState();
     });
-  }
+  });
+  renderBoard();
+}
 function answerTakeover(teamKey){
   timerStopCore();
 
