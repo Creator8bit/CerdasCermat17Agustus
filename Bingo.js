@@ -140,7 +140,7 @@ async function parseExcelFile(file){
 /* ---------- Persist round ---------- */
 function saveState(){
   if(!eventId||!roundNo) return;
-  const s={eventId,roundNo,mode,bingoHappened,boardCells,takeoverQueue,takeoverIndex,teams,regularQuestions,takeoverQuestions,regIndex,activeTeam,bingoBonus};
+  const s={eventId,roundNo,mode,bingoHappened,boardCells,takeoverQueue,takeoverAnsweredCount,takeoverIndex,teams,regularQuestions,takeoverQuestions,regIndex,activeTeam,bingoBonus};
   localStorage.setItem(roundStateKey(eventId,roundNo), JSON.stringify(s));
 }
 function loadState(eid,rno){
@@ -149,7 +149,7 @@ function loadState(eid,rno){
     const s=JSON.parse(raw);
     eventId=s.eventId; roundNo=s.roundNo;
     mode=s.mode; bingoHappened=s.bingoHappened;
-    boardCells=s.boardCells; takeoverQueue=s.takeoverQueue; takeoverIndex=s.takeoverIndex;
+    boardCells=s.boardCells; takeoverQueue=s.takeoverQueue; takeoverIndex=s.takeoverIndex; takeoverAnsweredCount=s.takeoverAnsweredCount || 0;
     teams=s.teams; regularQuestions=s.regularQuestions||[]; takeoverQuestions=s.takeoverQuestions||[];
     regIndex=typeof s.regIndex==='number'?s.regIndex:0; activeTeam=s.activeTeam||null;
 
@@ -964,8 +964,9 @@ function skipTakeover(reason){
   saveState(); renderBoard();
 
   awaitOperatorClickTo(()=>{
-    takeoverIndex+=1;
+    takeoverAnsweredCount+=1;
     renderBoard();
+    saveState();
   });
 }
 function renderTakeover(){
@@ -1061,8 +1062,9 @@ function answerTakeover(teamKey){
   saveState(); renderBoard();
 
   awaitOperatorClickTo(()=>{
-    takeoverIndex+=1;
+    takeoverAnsweredCount+=1;
     renderBoard();
+    saveState();
   });
 }
 function wrongTakeover(teamKey, ansKey){
@@ -1079,8 +1081,9 @@ function wrongTakeover(teamKey, ansKey){
   saveState(); renderBoard();
 
   awaitOperatorClickTo(()=>{
-    takeoverIndex+=1;
+    takeoverAnsweredCount+=1;
     renderBoard();
+    saveState();
   });
 }
 
