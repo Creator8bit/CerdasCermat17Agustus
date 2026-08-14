@@ -810,8 +810,13 @@ function checkBingo(teamKey){
     {length:5},
     (_,c)=>[0,1,2,3,4].map(r=>r*5+c)
   );
-
+  
   const diagonal1 = [0,6,12,18,24];
+  const diagonal2 = [4,8,12,16,20];
+  const hasDiagonal =
+    diagonal1.every(hasTeam) ||
+    diagonal2.every(hasTeam);
+  
 
   let awarded = false;
 
