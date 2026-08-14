@@ -813,10 +813,6 @@ function checkBingo(teamKey){
   
   const diagonal1 = [0,6,12,18,24];
   const diagonal2 = [4,8,12,16,20];
-  const hasDiagonal =
-    diagonal1.every(hasTeam) ||
-    diagonal2.every(hasTeam);
-  
 
   let awarded = false;
 
@@ -868,22 +864,23 @@ function checkBingo(teamKey){
 
   // ===== DIAGONAL 1 SAJA =====
   const hasDiagonal =
-    diagonal1.every(hasTeam);
+    diagonal1.every(hasTeam) ||
+    diagonal2.every(hasTeam);
 
-  if(hasDiagonal && !bingoBonus.diagonal){
-
-    bingoBonus.diagonal = true;
-
-    teams[teamKey].score += 50;
-
-    diagonal1.forEach(i=>{
-      boardCells[i].bingoWin = true;
-    });
-
-    awarded = true;
+  if(diagonal1.every(hasTeam)){
+      diagonal1.forEach(i=>{
+          boardCells[i].bingoWin = true;
+      });
   }
 
-  if(!awarded) return;
+  if(diagonal2.every(hasTeam)){
+      diagonal2.forEach(i=>{
+          boardCells[i].bingoWin = true;
+      });
+  }
+
+  awarded = true;
+}
 
   updateScores();
   saveState();
