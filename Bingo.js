@@ -1031,7 +1031,6 @@ function renderTakeover(){
     };
     answersArea.appendChild(btn);
   });
-}
 
   // Timer TO 5s
   timerPrepare('to', 5, ()=>{
