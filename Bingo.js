@@ -26,7 +26,7 @@ let boardLocked=false;
 let bingoBonus = {
   diagonal: false,
   horizontal: false,
-  vertical: false,
+  vertical: false
 };
 
 /* ---------- Excel Question Bank ---------- */
@@ -138,7 +138,7 @@ async function parseExcelFile(file){
 /* ---------- Persist round ---------- */
 function saveState(){
   if(!eventId||!roundNo) return;
-  const s={eventId,roundNo,mode,bingoHappened,boardCells,takeoverQueue,takeoverIndex,teams,regularQuestions,takeoverQuestions,regIndex,activeTeam,bingo};
+  const s={eventId,roundNo,mode,bingoHappened,boardCells,takeoverQueue,takeoverIndex,teams,regularQuestions,takeoverQuestions,regIndex,activeTeam,bingoBonus};
   localStorage.setItem(roundStateKey(eventId,roundNo), JSON.stringify(s));
 }
 function loadState(eid,rno){
