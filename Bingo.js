@@ -23,6 +23,8 @@ let eventId=null, roundNo=null;
 let regularQuestions=[], takeoverQuestions=[];
 let boardCells=[], takeoverQueue=[], takeoverIndex=0, regIndex=0;
 let boardLocked=false;
+let selectedTakeoverCell=null;
+let takeoverAnsweredCount=0;
 let bingoBonus = {
   diagonal: false,
   horizontal: false,
@@ -490,6 +492,15 @@ function renderBoard(){
 
     cell.addEventListener("click", ()=>{
       if(reassignMode){ handleReassignDOM(cell); return; }
+      
+      if(mode === "takeover"){
+        if(cs.type !== "takeover") return;
+        if(cs.dead || cs.answered) return;
+        takeoverIndex = takeoverQueue.indexOf(idx);
+        renderTakeover();
+        return;
+      }
+      
       if(mode!=="regular") return;
       if(cs.dead || cs.answered) return;
       if(boardLocked && idx!==currentCell) return;
@@ -929,6 +940,7 @@ function maybeStartTakeover(){
 
   takeoverQueue=openIdx.slice(0, Math.min(openIdx.length, takeoverQuestions.length||openIdx.length));
   takeoverIndex=0;
+  takeoverAnsweredCount=0;
   mode="takeover"; 
   timerReset();
   saveState();
@@ -938,7 +950,7 @@ function maybeStartTakeover(){
 
   hideLegacyTOButtons();
 
-  renderBoard(); renderTakeover();
+  renderBoard();
 }
 
 /* ---------- Takeover (REGULAR & FINAL) ---------- */
@@ -953,18 +965,22 @@ function skipTakeover(reason){
 
   awaitOperatorClickTo(()=>{
     takeoverIndex+=1;
-    renderTakeover();
+    renderBoard();
   });
 }
 function renderTakeover(){
   if(mode!=="takeover") return;
-  const total=takeoverQueue.length, i=takeoverIndex;
-  if(i>=total){ endRoundNoBingo(); return; }
+  const total=takeoverQueue.length;
+  if (takeoverAnsweredCount >= total){
+    endRoundNoBingo();
+    return;
+  }
+  const i=takeoverIndex;
 
   const cellIdx=takeoverQueue[i];
   const cs=boardCells[cellIdx];
 
-  let q = (cs && cs.questionId) ? getQuestionById(cs.questionId) : (takeoverQuestions[i] || null);
+  let q = (cs && cs.questionId) ? getQuestionById(cs.questionId) : null;
   if(!q){ skipTakeover("Soal TO tidak ditemukan."); return; }
 
   const ansKey=(q&&q.ans)?String(q.ans).toLowerCase():null;
@@ -977,9 +993,9 @@ function renderTakeover(){
   const ttl = document.getElementById('takeoverTitle');
   const prog = document.getElementById('takeoverProgress');
   if (ttl) ttl.innerText = 'Take Over Round';
-  if (prog) prog.innerText = `Take Over: ${i+1}/${total}`;
+  if (prog) prog.innerText = `Take Over: ${takeoverAnsweredCount+1}/${total}`;
 
-  document.getElementById("takeoverText").innerText=finalPrompt || `Take Over: #${i+1}`;
+  document.getElementById("takeoverText").innerText=finalPrompt || `Take Over: #${takeoverAnsweredCount+1}`;
 
   const answersArea=document.getElementById("toAnswersArea");
   answersArea.innerHTML="";
@@ -1046,7 +1062,7 @@ function answerTakeover(teamKey){
 
   awaitOperatorClickTo(()=>{
     takeoverIndex+=1;
-    renderTakeover();
+    renderBoard();
   });
 }
 function wrongTakeover(teamKey, ansKey){
@@ -1064,7 +1080,7 @@ function wrongTakeover(teamKey, ansKey){
 
   awaitOperatorClickTo(()=>{
     takeoverIndex+=1;
-    renderTakeover();
+    renderBoard();
   });
 }
 
